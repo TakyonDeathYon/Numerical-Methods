@@ -6,4 +6,8 @@ typedef struct polynomial_internal *polynomial;
 
 polynomial init_polynomial(unsigned int, rational *);
 
+polynomial add_polynomial(polynomial, polynomial);
+
+bool destroy_polynomial(polynomial);
+
 #endif // !POLYNOMIAL_H
