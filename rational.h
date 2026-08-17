@@ -1,18 +1,21 @@
 #ifndef RATIONAL_H
 #define RATIONAL_H
+#include <stdbool.h>
 
-#include "rational_struct.h"
+typedef struct rational_internal *rational;
 
-struct rational init_rational(bool, unsigned long, unsigned long);
+rational init_rational(bool, unsigned long, unsigned long);
 
-void change_sign_rational(struct rational *);
+bool change_sign_rational(rational);
 
-struct rational mult_rational(struct rational, struct rational);
+rational mult_rational(rational, rational);
 
-struct rational add_rational(struct rational, struct rational);
+rational add_rational(rational, rational);
 
-struct rational int_mult_rational(int, struct rational);
+rational int_mult_rational(int, rational);
 
-void print_rational(struct rational);
+bool print_rational(rational);
+
+bool destroy_rational(rational);
 
 #endif // !RATIONAL_H

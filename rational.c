@@ -1,13 +1,18 @@
 #include "rational.h"
 #include "GCD.h"
-#include "rational_struct.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+struct rational_internal {
+  bool sign;
+  unsigned long a;
+  unsigned long b;
+};
+
 // A function to initialise a rational number struct
 // it returns by value the structure
-struct rational init_rational(bool sign, unsigned long a, unsigned long b) {
+rational init_rational(bool sign, unsigned long a, unsigned long b) {
   // Throw and error and stop the program if the
   // second value is 0 (i.e a/0)
   if (b == 0) {
@@ -29,68 +34,83 @@ struct rational init_rational(bool sign, unsigned long a, unsigned long b) {
     adjusted_b = 1;
   }
   // Initialise the rational number
-  struct rational returning_num = {
-      .sign = sign, .a = adjusted_a, .b = adjusted_b};
-  // Return the rational by value
-  return returning_num;
+  rational return_pointer = calloc(1, sizeof(struct rational_internal));
+  return_pointer->sign = sign;
+  return_pointer->a = adjusted_a;
+  return_pointer->b = adjusted_b;
+  // Return the rational pointer
+  return return_pointer;
 }
 
 // A function to change the sign of a rational number
-void change_sign_rational(struct rational *to_change) {
+bool change_sign_rational(rational to_change) {
+  if (to_change == NULL) {
+    fprintf(stderr, "Passed NULL pointer");
+    return false;
+  }
   // Just change the sign with the not operator
   to_change->sign = !(to_change->sign);
+  return true;
 }
 
 // Function to get the inverse of a rational
-struct rational get_inverse(struct rational to_invert) {
+rational get_inverse(rational to_invert) {
+  if (to_invert == NULL) {
+    fprintf(stderr, "Passed NULL pointer");
+    return NULL;
+  }
   // Check if the rational is 0, and return an error if so
-  if (to_invert.a == 0) {
+  if (to_invert->a == 0) {
     fprintf(stderr, "Cannot invert 0");
     exit(EXIT_FAILURE);
   }
-  // Return by value the inverse of the rational
-  return init_rational(to_invert.sign, to_invert.b, to_invert.a);
+  // Return a pointer the inverse of the rational
+  return init_rational(to_invert->sign, to_invert->b, to_invert->a);
 }
 
 // A function to add two rational numbers together
-struct rational add_rational(struct rational a, struct rational b) {
+rational add_rational(rational a, rational b) {
+  if (a == NULL || b == NULL) {
+    fprintf(stderr, "Passed NULL pointer");
+    return NULL;
+  }
   // Initialise all the needed variables
   bool new_sign;
   unsigned long new_a_val;
-  unsigned long new_b_val = a.b * b.b;
+  unsigned long new_b_val = a->b * b->b;
   // The addition will change depending on the signs of the numbers
-  if (a.sign && b.sign) {
+  if (a->sign && b->sign) {
     // If both are positive, just add them like fractions
-    new_a_val = a.a * b.b + b.a * a.b;
+    new_a_val = a->a * b->b + b->a * a->b;
     new_sign = true;
-  } else if (a.sign) {
+  } else if (a->sign) {
     // If a is positive but b negative
-    if (a.a * b.b >= b.a * a.b) {
+    if (a->a * b->b >= b->a * a->b) {
       // If a is bigger just subtract b
-      new_a_val = a.a * b.b - b.a * a.b;
+      new_a_val = a->a * b->b - b->a * a->b;
       new_sign = true;
     } else {
       // If a is smaller find the absolute difference
       // and then make the sign negative
-      new_a_val = b.a * a.b - a.a * b.b;
+      new_a_val = b->a * a->b - a->a * b->b;
       new_sign = false;
     }
-  } else if (b.sign) {
+  } else if (b->sign) {
     // If b is postive but a negative
-    if (a.a * b.b <= b.a * a.b) {
+    if (a->a * b->b <= b->a * a->b) {
       // If b is bigger, subract a from it
-      new_a_val = b.a * a.b - a.a * b.b;
+      new_a_val = b->a * a->b - a->a * b->b;
       new_sign = true;
     } else {
       // If a is bigger, find the absolute difference
       // and make the sign negative
-      new_a_val = a.a * b.b - b.a * a.b;
+      new_a_val = a->a * b->b - b->a * a->b;
       new_sign = false;
     }
   } else {
     // If they are both negative, just add them and
     // make the sign negative
-    new_a_val = a.a * b.b + b.a * a.b;
+    new_a_val = a->a * b->b + b->a * a->b;
     new_sign = false;
   }
   // Return by value the a rational with the new values
@@ -98,9 +118,13 @@ struct rational add_rational(struct rational a, struct rational b) {
 }
 
 // A function to multiply a rational number by an interger
-struct rational int_mult_rational(int scalar, struct rational rational_num) {
+rational int_mult_rational(int scalar, rational rational_num) {
+  if (rational_num == NULL) {
+    fprintf(stderr, "Passed NULL pointer");
+    return NULL;
+  }
   // Initialise an empty variable to take the scalar value
-  struct rational temp;
+  rational temp;
   // Check whether the scalar value is positive or negative
   // and give the correct sign in each case
   if (scalar >= 0) {
@@ -113,22 +137,41 @@ struct rational int_mult_rational(int scalar, struct rational rational_num) {
 }
 
 // A function to multiply two rational numbers
-struct rational mult_rational(struct rational a, struct rational b) {
+rational mult_rational(rational a, rational b) {
+  if (a == NULL || b == NULL) {
+    fprintf(stderr, "Passed NULL pointer");
+    return NULL;
+  }
   // Just multiply the numerators and the denomenators by each other
-  unsigned long new_a_val = a.a * b.a;
-  unsigned long new_b_val = a.b * b.b;
+  unsigned long new_a_val = a->a * b->a;
+  unsigned long new_b_val = a->b * b->b;
   // Get the new sign by the rules of multiplication
   // ie -1 * -1 = 1, -1 * 1 = -1, 1 * 1 = 1
-  bool new_sign = !((!b.sign) && a.sign) && !((!a.sign) && b.sign);
+  bool new_sign = !((!b->sign) && a->sign) && !((!a->sign) && b->sign);
   // Return an new initialised rational number
   return init_rational(new_sign, new_a_val, new_b_val);
 }
 
 // A function to print out a rational number
-void print_rational(struct rational num) {
+bool print_rational(rational num) {
+  if (num == NULL) {
+    fprintf(stderr, "Passed NULL pointer");
+    return false;
+  }
   // This bit is to allow dropping the /1 for integer
   char str[256];
-  sprintf(str, "/%lu", num.b);
+  sprintf(str, "/%lu", num->b);
   // Print out the number like a/b
-  printf("%s%lu%s \n", (num.sign) ? "" : "-", num.a, (num.b == 1) ? "" : str);
+  printf("%s%lu%s \n", (num->sign) ? "" : "-", num->a,
+         (num->b == 1) ? "" : str);
+  return true;
+}
+
+bool destroy_rational(rational to_destroy) {
+  if (to_destroy == NULL) {
+    fprintf(stderr, "Passed NULL pointer");
+    return false;
+  }
+  free(to_destroy);
+  return true;
 }
