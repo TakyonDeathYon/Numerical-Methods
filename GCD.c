@@ -4,7 +4,7 @@ unsigned long calc_gcd(unsigned long a, unsigned long b) {
   unsigned long ajmin1 = (a > b) ? a : b;
   unsigned long aj = (a > b) ? b : a;
   if (aj == 0) {
-    fprintf(stderr, "Error: Tried to divide by 0 in GCD");
+    fprintf(stderr, "Error: Tried to divide by 0 in GCD\n");
     return 0;
   }
 tco:
