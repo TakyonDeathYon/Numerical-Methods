@@ -16,8 +16,7 @@ struct rational init_rational(bool sign, unsigned long a, unsigned long b) {
     exit(EXIT_FAILURE);
   }
   // Adjust the numbers to be coprime
-  // ie 10/5 and 20/10 both initialise to
-  // 2/1
+  // ie 10/5 and 20/10 both initialise to 2/1
   unsigned long divisor = calc_gcd(a, b);
   unsigned long adjusted_a;
   unsigned long adjusted_b;
