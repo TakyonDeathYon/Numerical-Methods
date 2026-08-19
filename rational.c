@@ -162,8 +162,7 @@ bool print_rational(rational num) {
   char str[256];
   sprintf(str, "/%lu", num->b);
   // Print out the number like a/b
-  printf("%s%lu%s \n", (num->sign) ? "" : "-", num->a,
-         (num->b == 1) ? "" : str);
+  printf("%s%lu%s", (num->sign) ? "" : "-", num->a, (num->b == 1) ? "" : str);
   return true;
 }
 
